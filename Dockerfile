@@ -1,6 +1,7 @@
-FROM python:3.10-slim
+# Dockerfile
+FROM python:3.9-slim
 WORKDIR /app
 COPY . .
-RUN pip install -r requirements.txt
-ENV PORT=8080
-CMD ["gunicorn", "-b", ":8080", "main:app"]
+RUN pip install flask
+EXPOSE 8080
+CMD ["python", "app.py"]
