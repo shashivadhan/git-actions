@@ -1,0 +1,36 @@
+name: Deploy to Cloud Run
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+      - name: Configure Docker
+        run: gcloud auth configure-docker us-docker.pkg.dev
+
+      - name: Build and Push Docker Image
+        run: |
+          docker build -t us-docker.pkg.dev/YOUR_PROJECT_ID/YOUR_REPO_NAME/python-output .
+          docker push us-docker.pkg.dev/YOUR_PROJECT_ID/YOUR_REPO_NAME/python-output
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy python-output \
+            --image us-docker.pkg.dev/YOUR_PROJECT_ID/YOUR_REPO_NAME/python-output \
+            --region us-central1 \
+            --platform managed \
+            --allow-unauthenticated
